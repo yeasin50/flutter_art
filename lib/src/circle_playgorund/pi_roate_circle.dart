@@ -105,27 +105,14 @@ class CircleRotationPainter extends CustomPainter {
 
     points.add(secondBallCenter);
 
-    Path path = Path()..moveTo(secondBallCenter.dx, secondBallCenter.dy);
-    for (int i = 0; i < points.length; i++) {
-      path = path..arcToPoint(points[i]);
-    }
-    path.moveTo(secondBallCenter.dx, secondBallCenter.dy);
-    path.close();
-    final linePaint = Paint()
-      ..color = Colors.cyanAccent
-      ..style = PaintingStyle.stroke
-      ..strokeWidth = 1;
-
-    canvas.drawPath(path, linePaint);
-
-    // canvas.drawPoints(
-    //   PointMode.lines,
-    //   points,
-    //   Paint()
-    //     ..color = Colors.cyanAccent
-    //     ..style = PaintingStyle.stroke
-    //     ..strokeWidth = 1,
-    // );
+    canvas.drawPoints(
+      PointMode.polygon,
+      points,
+      Paint()
+        ..color = Colors.cyanAccent
+        ..style = PaintingStyle.stroke
+        ..strokeWidth = 1,
+    );
 
     canvas.drawCircle(
       secondBallCenter,
