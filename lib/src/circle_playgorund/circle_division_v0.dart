@@ -16,7 +16,7 @@ class _CircleRotationState extends State<CircleDivision>
 
   late Animation animation;
 
-  double sides = 0;
+  double sides = 120;
   @override
   void initState() {
     super.initState();
@@ -64,7 +64,7 @@ class _CircleRotationState extends State<CircleDivision>
             Slider(
               value: sides,
               min: 0,
-              max: 25,
+              max: 120,
               divisions: 360,
               onChanged: (value) {
                 setState(() {
@@ -115,7 +115,7 @@ class CircleDivisionPainter extends CustomPainter {
     //center
     canvas.drawCircle(
       center,
-      5,
+      2,
       Paint()
         ..color = Colors.red
         ..style = PaintingStyle.fill,
@@ -129,7 +129,7 @@ class CircleDivisionPainter extends CustomPainter {
       );
 
       /// radius ball
-      canvas.drawCircle(ballCenter, 5, outlinePaint);
+      canvas.drawCircle(ballCenter, 2, outlinePaint);
     }
   }
 
