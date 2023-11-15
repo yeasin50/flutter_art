@@ -56,7 +56,7 @@ class PrimeNumberView extends StatefulWidget {
 class _PrimeNumberViewState extends State<PrimeNumberView> {
   List<int> _primes = [];
   List<int> currentItems = [];
-  final maxNum = 1200;
+  final maxNum = 52200;
 
   CircleType circleType = CircleType.sin;
 
@@ -68,6 +68,7 @@ class _PrimeNumberViewState extends State<PrimeNumberView> {
   void initState() {
     super.initState();
     _primes = generatePrimes(maxNum);
+    currentItems = _primes;
   }
 
   @override
@@ -131,15 +132,25 @@ class _PrimeNumberViewState extends State<PrimeNumberView> {
     );
 
     return Scaffold(
-      body: Column(
+      body: Stack(
         children: [
-          Expanded(
-            child: SizedBox.expand(
-              child: CustomPaint(
-                painter: PrimeNumberPinter(
-                  primes: currentItems,
-                  circleType: circleType,
-                  useCenter: useCenter,
+          Align(
+            child: SizedBox(
+              width: maxNum.toDouble(),
+              height: maxNum.toDouble(),
+              child: InteractiveViewer(
+                minScale: .001,
+                maxScale: 100,
+                child: SizedBox(
+                  width: maxNum.toDouble(),
+                  height: maxNum.toDouble(),
+                  child: CustomPaint(
+                    painter: PrimeNumberPinter(
+                      primes: currentItems,
+                      circleType: circleType,
+                      useCenter: useCenter,
+                    ),
+                  ),
                 ),
               ),
             ),
@@ -192,6 +203,8 @@ class PrimeNumberPinter extends CustomPainter {
 
     List<Offset> points = [];
 
+    /// use PathMetrics
+
     for (int i = 0; i < primes.length; i++) {
       final x = primes[i].toDouble();
 
@@ -213,16 +226,10 @@ class PrimeNumberPinter extends CustomPainter {
         paint
           ..color = Colors.primaries[i % Colors.primaries.length]
           ..style = PaintingStyle.stroke
-          ..strokeWidth = 1,
+          ..strokeWidth = 1
+          ..strokeCap = StrokeCap.round,
       );
     }
-
-    canvas.drawPath(
-      Path()..addPolygon(points, true),
-      paint
-        ..color = Colors.white
-        ..style = PaintingStyle.stroke,
-    );
   }
 
   @override

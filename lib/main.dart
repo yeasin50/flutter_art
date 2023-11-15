@@ -17,11 +17,11 @@ class MainApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      theme: ThemeData(
-        scaffoldBackgroundColor: Colors.black,
+      theme: ThemeData.dark(
+        // scaffoldBackgroundColor: Colors.black,
       ),
       debugShowCheckedModeBanner: false,
-      home: PrimeNumberView(),
+      home: PiCircleRotationWithTimer(),
     );
   }
 }

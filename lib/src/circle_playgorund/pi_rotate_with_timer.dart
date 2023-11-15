@@ -41,50 +41,64 @@ class _CircleRotationState extends State<PiCircleRotationWithTimer> {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: Colors.black,
-      body: Column(
-        children: [
-          Expanded(
-            child: LayoutBuilder(
-              builder: (context, constraints) => Center(
-                child: SizedBox(
-                  width: constraints.maxWidth * .6,
-                  height: constraints.maxWidth * .6,
-                  child: AnimatedBuilder(
-                    animation: valueNotifier,
-                    builder: (context, child) {
-                      return CustomPaint(
-                        painter: CircleRotationPainter(
-                          value: valueNotifier,
-                        ),
-                      );
-                    },
-                  ),
+      body: LayoutBuilder(
+        builder: (context, constraints) => Stack(
+          children: [
+            Positioned(
+              top: 8,
+              left: 8,
+              child: Text(
+                  "time: ${Duration(milliseconds: timer.tick * 10).toString().substring(0, 10)}"),
+            ),
+            Positioned.fill(
+              child: InteractiveViewer(
+                minScale: 0.1,
+                maxScale: 16,
+                child: AnimatedBuilder(
+                  animation: valueNotifier,
+                  builder: (context, child) {
+                    return CustomPaint(
+                      size: Size(
+                        constraints.maxWidth,
+                        constraints.maxHeight,
+                      ),
+                      painter: CircleRotationPainter(
+                        value: valueNotifier,
+                        cSize: math.min(
+                                constraints.maxWidth, constraints.maxHeight) *
+                            .6,
+                      ),
+                    );
+                  },
                 ),
               ),
             ),
-          ),
-          Row(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              ElevatedButton(
-                onPressed: () {
-                  timer.isActive ? timer.cancel() : _initTimer();
-                },
-                child: Text(timer.isActive ? 'Stop' : 'Start'),
+            Align(
+              alignment: const Alignment(0, .95),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  ElevatedButton(
+                    onPressed: () {
+                      timer.isActive ? timer.cancel() : _initTimer();
+                    },
+                    child: Text(timer.isActive ? 'Stop' : 'Start'),
+                  ),
+                  const SizedBox(width: 10),
+                  ElevatedButton(
+                    onPressed: () {
+                      setState(() {
+                        points.clear();
+                      });
+                    },
+                    child: const Text('clear'),
+                  ),
+                ],
               ),
-              const SizedBox(width: 10),
-              ElevatedButton(
-                onPressed: () {
-                  setState(() {
-                    points.clear();
-                  });
-                },
-                child: const Text('clear'),
-              ),
-            ],
-          ),
-          const SizedBox(height: 24),
-        ],
+            ),
+            const SizedBox(height: 24),
+          ],
+        ),
       ),
     );
   }
@@ -101,19 +115,27 @@ List<Offset> points = [];
 /// the points are the second ball points
 ///
 class CircleRotationPainter extends CustomPainter {
+  CircleRotationPainter({
+    required this.value,
+    this.cSize = 200,
+  }) : super(repaint: value);
+
   final ValueNotifier<double> value;
 
-  CircleRotationPainter({required this.value}) : super(repaint: value);
+  /// using separate radius for the circle so that we can zoom in and out
+  ///
+  final double cSize;
 
   @override
   void paint(Canvas canvas, Size size) {
     final outlinePaint = Paint()
       ..color = Colors.grey[800]!
       ..strokeWidth = 1
-      ..style = PaintingStyle.stroke;
+      ..style = PaintingStyle.stroke
+      ..strokeCap = StrokeCap.round;
 
     final center = Offset(size.width / 2, size.height / 2);
-    final radius = math.min(size.width, size.height) / 4 - 10;
+    final radius = math.min(cSize, cSize) / 4 - 10;
 
     //border
     final firstBorder = Path()
@@ -148,7 +170,7 @@ class CircleRotationPainter extends CustomPainter {
     ///inner radius ball and line
     canvas.drawCircle(offset, 7, Paint()..color = Colors.greenAccent);
     canvas.drawLine(offset, center, outlinePaint);
-     
+
     ///second(outer) ball and line
     canvas.drawCircle(sOffset, 5, Paint()..color = Colors.orange);
     canvas.drawLine(sOffset, offset, outlinePaint);
@@ -156,7 +178,7 @@ class CircleRotationPainter extends CustomPainter {
     //center
     canvas.drawCircle(
       center,
-      5,
+      3,
       Paint()
         ..color = Colors.red
         ..style = PaintingStyle.fill,
