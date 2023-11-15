@@ -109,7 +109,7 @@ class CircleRotationPainter extends CustomPainter {
   void paint(Canvas canvas, Size size) {
     final outlinePaint = Paint()
       ..color = Colors.grey[800]!
-      ..strokeWidth = 2
+      ..strokeWidth = 1
       ..style = PaintingStyle.stroke;
 
     final center = Offset(size.width / 2, size.height / 2);
@@ -128,19 +128,12 @@ class CircleRotationPainter extends CustomPainter {
       center.dy + radius * math.cos(angle),
     );
 
-    ///inner radius ball
-    canvas.drawCircle(offset, 7, Paint()..color = Colors.greenAccent);
-    canvas.drawLine(offset, center, outlinePaint);
-
     ///second ball circle around radius ball
     final secondBallAngle = _deg2Rad(value.value * math.pi);
     final sOffset = Offset(
       offset.dx + radius * math.sin(secondBallAngle),
       offset.dy + radius * math.cos(secondBallAngle),
     );
-
-    canvas.drawCircle(sOffset, 5, Paint()..color = Colors.orange);
-    canvas.drawLine(sOffset, offset, outlinePaint);
 
     ///🤔 should I drop the overlapping points?
 
@@ -151,6 +144,14 @@ class CircleRotationPainter extends CustomPainter {
       points,
       Paint()..color = Colors.cyanAccent,
     );
+
+    ///inner radius ball and line
+    canvas.drawCircle(offset, 7, Paint()..color = Colors.greenAccent);
+    canvas.drawLine(offset, center, outlinePaint);
+     
+    ///second(outer) ball and line
+    canvas.drawCircle(sOffset, 5, Paint()..color = Colors.orange);
+    canvas.drawLine(sOffset, offset, outlinePaint);
 
     //center
     canvas.drawCircle(
