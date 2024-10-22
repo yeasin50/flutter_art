@@ -3,6 +3,7 @@ import 'dart:ui';
 import 'package:flutter/material.dart';
 import 'dart:math' as math;
 
+@Deprecated("use [PiCircleRotationWithTimer]")
 class PiCircleRotation extends StatefulWidget {
   const PiCircleRotation({super.key});
 
@@ -10,8 +11,7 @@ class PiCircleRotation extends StatefulWidget {
   State<PiCircleRotation> createState() => _CircleRotationState();
 }
 
-class _CircleRotationState extends State<PiCircleRotation>
-    with SingleTickerProviderStateMixin {
+class _CircleRotationState extends State<PiCircleRotation> with SingleTickerProviderStateMixin {
   late AnimationController _controller;
   late Animation<double> _animation;
 
@@ -21,16 +21,21 @@ class _CircleRotationState extends State<PiCircleRotation>
 
     _controller = AnimationController(
       vsync: this,
-      //FIXME::  how do we overcome this 100 and create infinite
       duration: const Duration(seconds: 100 * 3),
     )..repeat();
     _animation = Tween(begin: 0.0, end: 100 * math.pi).animate(_controller);
   }
 
   @override
+  void dispose() {
+    _controller.dispose();
+    super.dispose();
+  }
+
+  @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Colors.black,
+      appBar: AppBar(),
       body: LayoutBuilder(
         builder: (context, constraints) => Center(
           child: SizedBox(
@@ -122,11 +127,9 @@ class CircleRotationPainter extends CustomPainter {
         ..style = PaintingStyle.fill,
     );
 
-    canvas.drawLine(
-        secondBallCenter, ballCenter, Paint()..color = Colors.green);
+    canvas.drawLine(secondBallCenter, ballCenter, Paint()..color = Colors.green);
   }
 
   @override
-  bool shouldRepaint(covariant CircleRotationPainter oldDelegate) =>
-      oldDelegate.animation != animation;
+  bool shouldRepaint(covariant CircleRotationPainter oldDelegate) => oldDelegate.animation != animation;
 }

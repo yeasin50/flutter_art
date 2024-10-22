@@ -14,16 +14,15 @@ class FragmentPractice extends StatefulWidget {
   State<FragmentPractice> createState() => _FragmentTestState();
 }
 
-class _FragmentTestState extends State<FragmentPractice>
-    with SingleTickerProviderStateMixin {
-  Future<FragmentProgram> loadMyShader() async =>
-      await FragmentProgram.fromAsset('assets/shaders/test.frag');
+class _FragmentTestState extends State<FragmentPractice> with SingleTickerProviderStateMixin {
+  Future<FragmentProgram> loadMyShader() async => await FragmentProgram.fromAsset('assets/shaders/test.frag');
 
   late final Future<FragmentProgram> _program = loadMyShader();
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      appBar: AppBar(),
       body: Center(
         child: FutureBuilder<FragmentProgram>(
           future: _program,
@@ -55,8 +54,7 @@ class ShaderBuilder extends StatefulWidget {
   State<ShaderBuilder> createState() => _ShaderBuilderState();
 }
 
-class _ShaderBuilderState extends State<ShaderBuilder>
-    with SingleTickerProviderStateMixin {
+class _ShaderBuilderState extends State<ShaderBuilder> with SingleTickerProviderStateMixin {
   late final FragmentShader shader = widget.shader.fragmentShader();
 
   ValueNotifier<double> _sliderValueNotifier = ValueNotifier(0);
@@ -70,8 +68,7 @@ class _ShaderBuilderState extends State<ShaderBuilder>
           width: 200,
           height: 200,
           child: CustomPaint(
-            painter:
-                _CircleRotationPainter(shader, value: _sliderValueNotifier),
+            painter: _CircleRotationPainter(shader, value: _sliderValueNotifier),
           ),
         ),
         Slider(
@@ -98,7 +95,7 @@ class _CircleRotationPainter extends CustomPainter {
   @override
   void paint(Canvas canvas, Size size) {
     shader.setFloat(0, value.value);
- 
+
     canvas.drawRect(
       Rect.fromLTWH(0, 0, size.width, size.height),
       Paint()..shader = shader,

@@ -10,8 +10,7 @@ class CircleDivision extends StatefulWidget {
   State<CircleDivision> createState() => _CircleRotationState();
 }
 
-class _CircleRotationState extends State<CircleDivision>
-    with SingleTickerProviderStateMixin {
+class _CircleRotationState extends State<CircleDivision> with SingleTickerProviderStateMixin {
   late AnimationController _controller;
 
   late Animation animation;
@@ -38,7 +37,7 @@ class _CircleRotationState extends State<CircleDivision>
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Colors.black,
+      appBar: AppBar(),
       body: LayoutBuilder(
         builder: (context, constraints) => Column(
           children: [
@@ -101,8 +100,7 @@ class CircleDivisionPainter extends CustomPainter {
     final radius = math.min(size.width, size.height) / 2 - 10;
 
     //border
-    final firstBorder = Path()
-      ..addOval(Rect.fromCircle(center: center, radius: radius));
+    final firstBorder = Path()..addOval(Rect.fromCircle(center: center, radius: radius));
 
     canvas.drawPath(firstBorder, outlinePaint);
 
@@ -134,6 +132,5 @@ class CircleDivisionPainter extends CustomPainter {
   }
 
   @override
-  bool shouldRepaint(covariant CircleDivisionPainter oldDelegate) =>
-      oldDelegate.value != value;
+  bool shouldRepaint(covariant CircleDivisionPainter oldDelegate) => oldDelegate.value != value;
 }

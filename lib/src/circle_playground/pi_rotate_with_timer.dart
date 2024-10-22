@@ -14,10 +14,13 @@ class PiCircleRotationWithTimer extends StatefulWidget {
 }
 
 class _CircleRotationState extends State<PiCircleRotationWithTimer> {
-  ValueNotifier<double> valueNotifier = ValueNotifier<double>(217);
-  late Timer timer;
+  ValueNotifier<double> valueNotifier = ValueNotifier<double>(100);
+  Timer? timer;
 
   _initTimer() {
+    timer?.cancel();
+    timer = null;
+
     timer = Timer.periodic(const Duration(milliseconds: 10), (timer) {
       setState(() {
         valueNotifier.value += 1;
@@ -28,77 +31,63 @@ class _CircleRotationState extends State<PiCircleRotationWithTimer> {
   @override
   void initState() {
     super.initState();
-    _initTimer();
   }
 
   @override
   void dispose() {
-    timer.cancel();
+    timer?.cancel();
     super.dispose();
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Colors.black,
-      body: LayoutBuilder(
-        builder: (context, constraints) => Stack(
-          children: [
-            Positioned(
-              top: 8,
-              left: 8,
-              child: Text(
-                  "time: ${Duration(milliseconds: timer.tick * 10).toString().substring(0, 10)}"),
-            ),
-            Positioned.fill(
-              child: InteractiveViewer(
-                minScale: 0.1,
-                maxScale: 16,
+      appBar: AppBar(),
+      body: Column(
+        children: [
+          Padding(
+            padding: const EdgeInsets.all(24),
+            child: Text("time: ${Duration(milliseconds: (timer?.tick ?? 0) * 10).toString().substring(0, 10)}"),
+          ),
+          Expanded(
+            child: InteractiveViewer(
+              minScale: 0.1,
+              maxScale: 16,
+              child: AspectRatio(
+                aspectRatio: 1,
                 child: AnimatedBuilder(
                   animation: valueNotifier,
                   builder: (context, child) {
                     return CustomPaint(
-                      size: Size(
-                        constraints.maxWidth,
-                        constraints.maxHeight,
-                      ),
-                      painter: CircleRotationPainter(
-                        value: valueNotifier,
-                        cSize: math.min(
-                                constraints.maxWidth, constraints.maxHeight) *
-                            .6,
-                      ),
+                      painter: CircleRotationPainter(value: valueNotifier),
                     );
                   },
                 ),
               ),
             ),
-            Align(
-              alignment: const Alignment(0, .95),
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  ElevatedButton(
-                    onPressed: () {
-                      timer.isActive ? timer.cancel() : _initTimer();
-                    },
-                    child: Text(timer.isActive ? 'Stop' : 'Start'),
-                  ),
-                  const SizedBox(width: 10),
-                  ElevatedButton(
-                    onPressed: () {
-                      setState(() {
-                        points.clear();
-                      });
-                    },
-                    child: const Text('clear'),
-                  ),
-                ],
+          ),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              ElevatedButton(
+                onPressed: () {
+                  timer?.isActive == true ? timer?.cancel() : _initTimer();
+                },
+                child: Text(timer?.isActive == true ? 'Stop' : 'Start'),
               ),
-            ),
-            const SizedBox(height: 24),
-          ],
-        ),
+              const SizedBox(width: 10),
+              ElevatedButton(
+                onPressed: () {
+                  setState(() {
+                    points.clear();
+                  });
+                },
+                child: const Text('clear'),
+              ),
+            ],
+          ),
+          const SizedBox(height: 48)
+        ],
       ),
     );
   }
@@ -117,14 +106,9 @@ List<Offset> points = [];
 class CircleRotationPainter extends CustomPainter {
   CircleRotationPainter({
     required this.value,
-    this.cSize = 200,
   }) : super(repaint: value);
 
   final ValueNotifier<double> value;
-
-  /// using separate radius for the circle so that we can zoom in and out
-  ///
-  final double cSize;
 
   @override
   void paint(Canvas canvas, Size size) {
@@ -135,11 +119,10 @@ class CircleRotationPainter extends CustomPainter {
       ..strokeCap = StrokeCap.round;
 
     final center = Offset(size.width / 2, size.height / 2);
-    final radius = math.min(cSize, cSize) / 4 - 10;
+    final radius = math.min(size.width, size.height) / 4 - 10;
 
     //border
-    final firstBorder = Path()
-      ..addOval(Rect.fromCircle(center: center, radius: radius));
+    final firstBorder = Path()..addOval(Rect.fromCircle(center: center, radius: radius));
 
     canvas.drawPath(firstBorder, outlinePaint);
 
@@ -186,6 +169,5 @@ class CircleRotationPainter extends CustomPainter {
   }
 
   @override
-  bool shouldRepaint(covariant CircleRotationPainter oldDelegate) =>
-      oldDelegate.value != value;
+  bool shouldRepaint(covariant CircleRotationPainter oldDelegate) => false;
 }

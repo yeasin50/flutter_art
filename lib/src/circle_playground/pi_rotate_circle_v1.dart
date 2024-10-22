@@ -3,6 +3,7 @@ import 'dart:ui' as ui;
 import 'package:flutter/material.dart';
 import 'dart:math' as math;
 
+@Deprecated("use [PiCircleRotationWithTimer]")
 class PiCircleRotationV1 extends StatefulWidget {
   const PiCircleRotationV1({super.key});
 
@@ -10,8 +11,7 @@ class PiCircleRotationV1 extends StatefulWidget {
   State<PiCircleRotationV1> createState() => _CircleRotationState();
 }
 
-class _CircleRotationState extends State<PiCircleRotationV1>
-    with SingleTickerProviderStateMixin {
+class _CircleRotationState extends State<PiCircleRotationV1> with SingleTickerProviderStateMixin {
   late AnimationController _controller;
 
   late Animation animation;
@@ -37,9 +37,15 @@ class _CircleRotationState extends State<PiCircleRotationV1>
   }
 
   @override
+  void dispose() {
+    _controller.dispose();
+    super.dispose();
+  }
+
+  @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Colors.black,
+      appBar: AppBar(),
       body: LayoutBuilder(
         builder: (context, constraints) => Center(
           child: SizedBox(
@@ -84,8 +90,7 @@ class CircleRotationPainter extends CustomPainter {
     final radius = math.min(size.width, size.height) / 4 - 10;
 
     //border
-    final firstBorder = Path()
-      ..addOval(Rect.fromCircle(center: center, radius: radius));
+    final firstBorder = Path()..addOval(Rect.fromCircle(center: center, radius: radius));
 
     canvas.drawPath(firstBorder, outlinePaint);
 
@@ -136,6 +141,5 @@ class CircleRotationPainter extends CustomPainter {
   }
 
   @override
-  bool shouldRepaint(covariant CircleRotationPainter oldDelegate) =>
-      oldDelegate.value != value;
+  bool shouldRepaint(covariant CircleRotationPainter oldDelegate) => oldDelegate.value != value;
 }
