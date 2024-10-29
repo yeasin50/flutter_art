@@ -1,5 +1,6 @@
 import 'package:collection/collection.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_art/src/circle_playground/coordinates_visualization.dart';
 
 import 'circle_playground/circle_division_v0.dart';
 import 'circle_playground/pi_roate_circle.dart';
@@ -16,9 +17,10 @@ class HomePage extends StatefulWidget {
 
 class _HomePageState extends State<HomePage> {
   Map<String, Widget> items = {
+    "circle coordinates": const CoordinatesVisualization(),
     "circle division": const CircleDivision(),
-    "Pi being irrational": const PiCircleRotation(),
-    "Pi being irrational V1": const PiCircleRotationV1(),
+    // "Pi being irrational": const PiCircleRotation(),
+    // "Pi being irrational V1": const PiCircleRotationV1(),
     "Pi being irrational VTimer": const PiCircleRotationWithTimer(),
     "simple shader": const FragmentPractice(),
   };

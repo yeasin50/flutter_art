@@ -4,6 +4,11 @@ import 'dart:ui' as ui;
 import 'package:flutter/material.dart';
 import 'dart:math' as math;
 
+double _deg2Rad(double deg) => deg * (math.pi / 180);
+
+/// Global list of points 🤣
+List<Offset> piTravelPoints = [];
+
 /// circle rotation with timer
 ///
 class PiCircleRotationWithTimer extends StatefulWidget {
@@ -14,10 +19,10 @@ class PiCircleRotationWithTimer extends StatefulWidget {
 }
 
 class _CircleRotationState extends State<PiCircleRotationWithTimer> {
-  ValueNotifier<double> valueNotifier = ValueNotifier<double>(100);
+  ValueNotifier<double> valueNotifier = ValueNotifier<double>(270);
   Timer? timer;
 
-  _initTimer() {
+  void startTimer() {
     timer?.cancel();
     timer = null;
 
@@ -29,13 +34,9 @@ class _CircleRotationState extends State<PiCircleRotationWithTimer> {
   }
 
   @override
-  void initState() {
-    super.initState();
-  }
-
-  @override
   void dispose() {
     timer?.cancel();
+    piTravelPoints.clear();
     super.dispose();
   }
 
@@ -47,21 +48,21 @@ class _CircleRotationState extends State<PiCircleRotationWithTimer> {
         children: [
           Padding(
             padding: const EdgeInsets.all(24),
-            child: Text("time: ${Duration(milliseconds: (timer?.tick ?? 0) * 10).toString().substring(0, 10)}"),
+            child: Text(
+              "time: ${Duration(milliseconds: (timer?.tick ?? 0) * 10).toString().substring(0, 10)}",
+            ),
           ),
           Expanded(
             child: InteractiveViewer(
+              clipBehavior: ui.Clip.none,
               minScale: 0.1,
               maxScale: 16,
               child: AspectRatio(
                 aspectRatio: 1,
-                child: AnimatedBuilder(
-                  animation: valueNotifier,
-                  builder: (context, child) {
-                    return CustomPaint(
-                      painter: CircleRotationPainter(value: valueNotifier),
-                    );
-                  },
+                child: RepaintBoundary(
+                  child: CustomPaint(
+                    painter: CircleRotationPainter(valueNotifier),
+                  ),
                 ),
               ),
             ),
@@ -71,16 +72,14 @@ class _CircleRotationState extends State<PiCircleRotationWithTimer> {
             children: [
               ElevatedButton(
                 onPressed: () {
-                  timer?.isActive == true ? timer?.cancel() : _initTimer();
+                  timer?.isActive == true ? timer?.cancel() : startTimer();
                 },
                 child: Text(timer?.isActive == true ? 'Stop' : 'Start'),
               ),
               const SizedBox(width: 10),
               ElevatedButton(
                 onPressed: () {
-                  setState(() {
-                    points.clear();
-                  });
+                  piTravelPoints.clear();
                 },
                 child: const Text('clear'),
               ),
@@ -93,81 +92,79 @@ class _CircleRotationState extends State<PiCircleRotationWithTimer> {
   }
 }
 
-double _deg2Rad(double deg) => deg * (math.pi / 180);
-
-/// Global list of points 🤣
-List<Offset> points = [];
-
 /// circle rotation painter
 /// the inner ball is rotating around the circle with radius and angle of the [value]
 /// the second ball is rotating around the inner ball with radius and angle of the `[value] * [math.pi]
 /// the points are the second ball points
 ///
 class CircleRotationPainter extends CustomPainter {
-  CircleRotationPainter({
-    required this.value,
-  }) : super(repaint: value);
+  //
+  const CircleRotationPainter(this.valueNotifier) : super(repaint: valueNotifier);
 
-  final ValueNotifier<double> value;
+  final ValueNotifier<double> valueNotifier;
 
   @override
   void paint(Canvas canvas, Size size) {
+    final center = Offset(size.width / 2, size.height / 2);
+    final radius = math.min(size.width, size.height) / 4;
+
     final outlinePaint = Paint()
       ..color = Colors.grey[800]!
       ..strokeWidth = 1
       ..style = PaintingStyle.stroke
       ..strokeCap = StrokeCap.round;
 
-    final center = Offset(size.width / 2, size.height / 2);
-    final radius = math.min(size.width, size.height) / 4 - 10;
+    canvas.drawOval(
+      Rect.fromCircle(center: center, radius: radius),
+      outlinePaint,
+    );
 
-    //border
-    final firstBorder = Path()..addOval(Rect.fromCircle(center: center, radius: radius));
-
-    canvas.drawPath(firstBorder, outlinePaint);
-
-    final angle = _deg2Rad(value.value);
-
+    final rad = _deg2Rad(valueNotifier.value);
     final offset = Offset(
-      center.dx + radius * math.sin(angle),
-      center.dy + radius * math.cos(angle),
+      center.dx + radius * math.sin(rad),
+      center.dy + radius * math.cos(rad),
     );
 
-    ///second ball circle around radius ball
-    final secondBallAngle = _deg2Rad(value.value * math.pi);
-    final sOffset = Offset(
-      offset.dx + radius * math.sin(secondBallAngle),
-      offset.dy + radius * math.cos(secondBallAngle),
+    final piBallAngle = _deg2Rad(valueNotifier.value * math.pi);
+    final piBallOffset = Offset(
+      offset.dx + radius * math.sin(piBallAngle),
+      offset.dy + radius * math.cos(piBallAngle),
     );
 
-    ///🤔 should I drop the overlapping points?
+    piTravelPoints.add(piBallOffset);
 
-    points.add(sOffset);
+    final Path piTravelPath = Path();
+    if (piTravelPoints.length > 2) {
+      piTravelPath.moveTo(piTravelPoints[0].dx, piTravelPoints[0].dy);
+      for (int i = 1; i < piTravelPoints.length - 1; i++) {
+        final p1 = piTravelPoints[i];
+        final p2 = piTravelPoints[i + 1];
+        final midPoint = Offset((p1.dx + p2.dx) / 2, (p1.dy + p2.dy) / 2);
+        piTravelPath.quadraticBezierTo(p1.dx, p1.dy, midPoint.dx, midPoint.dy);
+      }
+      piTravelPath.lineTo(piTravelPoints.last.dx, piTravelPoints.last.dy);
+    }
 
-    canvas.drawPoints(
-      ui.PointMode.polygon,
-      points,
-      Paint()..color = Colors.cyanAccent,
-    );
-
-    ///inner radius ball and line
-    canvas.drawCircle(offset, 7, Paint()..color = Colors.greenAccent);
-    canvas.drawLine(offset, center, outlinePaint);
-
-    ///second(outer) ball and line
-    canvas.drawCircle(sOffset, 5, Paint()..color = Colors.orange);
-    canvas.drawLine(sOffset, offset, outlinePaint);
-
-    //center
-    canvas.drawCircle(
-      center,
-      3,
+    canvas.drawPath(
+      piTravelPath,
       Paint()
-        ..color = Colors.red
-        ..style = PaintingStyle.fill,
+        ..color = Colors.cyanAccent
+        ..style = PaintingStyle.stroke,
+    );
+
+    canvas.drawCircle(piBallOffset, 4, Paint()..color = Colors.white);
+    canvas.drawLine(offset, piBallOffset, outlinePaint);
+
+    canvas.drawCircle(offset, 7, Paint()..color = Colors.greenAccent);
+    canvas.drawLine(center, offset, outlinePaint);
+
+    ///center
+    canvas.drawOval(
+      Rect.fromCenter(center: center, width: 5, height: 5),
+      Paint()..color = Colors.red,
     );
   }
 
   @override
-  bool shouldRepaint(covariant CircleRotationPainter oldDelegate) => false;
+  bool shouldRepaint(covariant CustomPainter oldDelegate) => false;
 }
