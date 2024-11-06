@@ -4,16 +4,14 @@
 #include <flutter/runtime_effect.glsl>
 
 uniform vec2 uSize;
-uniform float time;
-uniform float zoom;
+uniform float uColorize;
 
 out vec4 fragColor;
 
-const float MAX_ITER = 128.0 * 4;
+const float MAX_ITER = 1500;
 
 float mandelbrot(vec2 uv) {
-    vec2 c = 4.0 * uv - vec2(1, 1);
-    c = c / pow(time, 2) - vec2(.7, .45);
+    vec2 c = 4.0 * uv - vec2(.5, .5);
     vec2 z = vec2(0.0);
 
     float iter = 0.0;
@@ -50,6 +48,11 @@ void main() {
     vec3 col = vec3(0.0);
     float m = mandelbrot(uv);
     col += m;
-    col = pow(col, vec3(.45));
+    if(uColorize > 0.0) {
+        col += randomColor(m);
+    } else {
+        col = pow(col, vec3(.45));
+    }
+
     fragColor = vec4(col, 1);
 }

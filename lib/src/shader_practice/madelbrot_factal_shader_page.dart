@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 
 void main(List<String> args) {
   runApp(const MaterialApp(
+    debugShowCheckedModeBanner: false,
     home: MandelbrotFractalPage(),
   ));
 }
@@ -23,10 +24,31 @@ class _MandelbrotFractalPageState extends State<MandelbrotFractalPage> {
 
   double time = 0.0;
 
+  final controller = TransformationController();
+  @override
+  void dispose() {
+    controller.dispose();
+    super.dispose();
+  }
+
+  bool colorize = false;
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: Colors.black,
+      floatingActionButton: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          FloatingActionButton(onPressed: () {
+            controller.value = Matrix4.identity();
+          }),
+          FloatingActionButton(onPressed: () {
+            colorize = !colorize;
+            setState(() {});
+          }),
+        ],
+      ),
       body: Center(
         child: FutureBuilder<FragmentProgram>(
           future: _program,
@@ -38,32 +60,17 @@ class _MandelbrotFractalPageState extends State<MandelbrotFractalPage> {
               return const Text("loading shader...");
             }
             final shader = snapshot.data!;
-            return Column(
-              children: [
-                Expanded(
-                  child: CustomPaint(
-                    isComplex: true,
-                    painter: MandelbrotFractalPainter(shader, time: time),
-                    child: const SizedBox.expand(),
-                  ),
+            return InteractiveViewer(
+              transformationController: controller,
+              minScale: 1,
+              maxScale: 150000,
+              child: CustomPaint(
+                painter: MandelbrotFractalPainter(
+                  shader,
+                  showColor: colorize,
                 ),
-                Row(
-                  children: [
-                    Expanded(
-                      child: Slider(
-                        min: 0,
-                        max: 50,
-                        value: time,
-                        onChanged: (value) {
-                          time = value;
-                          print(time);
-                          setState(() {});
-                        },
-                      ),
-                    )
-                  ],
-                )
-              ],
+                child: const SizedBox.expand(),
+              ),
             );
           },
         ),
@@ -75,18 +82,18 @@ class _MandelbrotFractalPageState extends State<MandelbrotFractalPage> {
 class MandelbrotFractalPainter extends CustomPainter {
   const MandelbrotFractalPainter(
     this.program, {
-    required this.time,
+    this.showColor = false,
   });
 
   final FragmentProgram program;
-  final double time;
+  final bool showColor;
 
   @override
   void paint(Canvas canvas, Size size) {
     final shader = program.fragmentShader()
       ..setFloat(0, size.width)
       ..setFloat(1, size.height)
-      ..setFloat(2, time);
+      ..setFloat(2, showColor ? .1 : 0);
 
     canvas.drawRect(
       Rect.fromLTWH(0, 0, size.width, size.height),
@@ -95,5 +102,5 @@ class MandelbrotFractalPainter extends CustomPainter {
   }
 
   @override
-  bool shouldRepaint(MandelbrotFractalPainter oldDelegate) => oldDelegate.time != time;
+  bool shouldRepaint(MandelbrotFractalPainter oldDelegate) => oldDelegate.showColor != showColor;
 }
