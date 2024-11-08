@@ -9,6 +9,6 @@ A playground where I am trying to have some fun with math and flutter.
 
 ### [Mandelbrot factual](/lib/src/shader_practice/madelbrot_factal_shader_page.dart)
 
-[Yt video](https://www.youtube.com/@FlutterforMe)
+[Yt video](https://youtu.be/fjSL3xpr72I)
 
 ![mandelbrot](/resources/mandelbrot_art.png)

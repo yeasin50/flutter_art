@@ -62,21 +62,21 @@ col = pow(col, vec3(.45));
 
 ```frag
 vec3 randomColor(float m) {
-    float r = fract(sin(m * 123.45) * 98765.4321);  // Red channel
-    float g = fract(sin(m * 234.56) * 54321.1234);  // Green channel
-    float b = fract(sin(m * 345.67) * 13579.2468);  // Blue channel
+    float r = fract(sin(m * 123.45) * 98765.4321);   
+    float g = fract(sin(m * 234.56) * 54321.1234);   
+    float b = fract(sin(m * 345.67) * 13579.2468);   
 
     // Make the color brighter
     r = 0.5 + 0.5 * r;
     g = 0.5 + 0.5 * g;
     b = 0.5 + 0.5 * b;
 
-    // Adjust gamma for better brightness perception
+    
     r = pow(r, 2.2);
     g = pow(g, 2.2);
     b = pow(b, 2.2);
 
-    return vec3(r, g, b);  // Return the color with enhanced brightness
+    return vec3(r, g, b);  
 }
 
 
