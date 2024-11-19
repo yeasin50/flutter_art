@@ -2,7 +2,7 @@
 
 A playground where I am trying to have some fun with math and flutter.
 
-### [WhatsApp appbar animation](https://youtu.be/8JKE0tViRVQ)
+### [WhatsApp appbar animation](/lib/src/whatsapp/whatsapp_appbar.dart)
 
 [check out yt tutorial](https://youtu.be/BrAZl51HHiA?feature=shared)  
 ![pi_being_irrational](/resources/whatsapp_bar_effect_gif2.gif)
