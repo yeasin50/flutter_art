@@ -1,9 +1,10 @@
-import 'dart:math';
+/// WhatsApp profile appBar animation
+///! Checkout the tutorial https://youtu.be/8JKE0tViRVQ
+///
 import 'dart:ui';
 
 import 'package:flutter/material.dart';
 
-/// WhatsApp Profile appBar
 class HomePage extends StatelessWidget {
   const HomePage({super.key});
 
@@ -15,16 +16,14 @@ class HomePage extends StatelessWidget {
         child: CustomScrollView(
           slivers: const [
             SliverPersistentHeader(
-              delegate: WhatsappAppBarSliverHeader(
+              delegate: WhatsappAppBarSliverDelegate(
                 avatarUrl: "https://avatars.githubusercontent.com/u/46500228?v=4",
                 bannerUrl: "https://cdn.pixabay.com/photo/2017/02/09/09/11/starry-sky-2051448_1280.jpg",
               ),
               pinned: true,
             ),
             SliverToBoxAdapter(
-              child: SizedBox(
-                height: 24,
-              ),
+              child: SizedBox(height: 32),
             ),
             SliverToBoxAdapter(
               child: Placeholder(
@@ -38,14 +37,29 @@ class HomePage extends StatelessWidget {
   }
 }
 
-class WhatsappAppBarSliverHeader extends SliverPersistentHeaderDelegate {
-  const WhatsappAppBarSliverHeader({
+class WhatsappAppBarSliverDelegate extends SliverPersistentHeaderDelegate {
+  const WhatsappAppBarSliverDelegate({
     required this.avatarUrl,
     required this.bannerUrl,
   });
 
   final String avatarUrl;
   final String bannerUrl;
+
+  Material buildIconButton(VoidCallback onTap) {
+    return Material(
+      color: const Color(0xFF05A382),
+      shape: CircleBorder(),
+      child: InkWell(
+        onTap: onTap,
+        customBorder: CircleBorder(),
+        child: Padding(
+          padding: const EdgeInsets.all(8.0),
+          child: Icon(Icons.camera_alt_outlined),
+        ),
+      ),
+    );
+  }
 
   @override
   Widget build(BuildContext context, double shrinkOffset, bool overlapsContent) {
@@ -54,7 +68,8 @@ class WhatsappAppBarSliverHeader extends SliverPersistentHeaderDelegate {
     return Stack(
       fit: StackFit.expand,
       children: [
-        ColoredBox(
+        AnimatedContainer(
+          duration: Durations.short1,
           color: shrinkOffset >= maxExtent - minExtent //
               ? const Color(0xFF1F272A)
               : Colors.transparent,
@@ -62,11 +77,11 @@ class WhatsappAppBarSliverHeader extends SliverPersistentHeaderDelegate {
         Positioned(
           left: 0,
           right: 0,
-          bottom: 48,
+          bottom: lerpDouble(48, -48, t),
           child: Image.network(
             bannerUrl,
-            fit: BoxFit.contain,
-            opacity: AlwaysStoppedAnimation(max(0, lerpDouble(1, -.25, t)!)),
+            fit: BoxFit.cover,
+            opacity: AlwaysStoppedAnimation(lerpDouble(1, 0, t)!),
           ),
         ),
         if (shrinkOffset < maxExtent - minExtent)
@@ -84,58 +99,34 @@ class WhatsappAppBarSliverHeader extends SliverPersistentHeaderDelegate {
                         width: 1.5,
                       ),
                     ),
-                    child: Center(
-                      child: InkWell(
-                        onTap: () {},
-                        child: Ink.image(
-                          image: NetworkImage(avatarUrl),
-                        ),
+                    child: InkWell(
+                      onTap: () {},
+                      child: Ink.image(
+                        image: NetworkImage(avatarUrl),
                       ),
                     ),
                   ),
                   Align(
                     alignment: Alignment.bottomRight,
-                    child: buildIconButton(
-                      () {},
-                    ),
-                  )
+                    child: buildIconButton(() {}),
+                  ),
                 ],
               ),
             ),
           ),
-        // if (shrinkOffset < maxExtent - minExtent * 2)
-        Positioned(
-          right: 8,
-          bottom: shrinkOffset + (48 - 16),
-          child: buildIconButton(
-            () {},
+        if (shrinkOffset < maxExtent - minExtent)
+          Positioned(
+            right: 8,
+            bottom: shrinkOffset + (48 - 16),
+            child: buildIconButton(() {}),
           ),
-        ),
-
         Align(
           alignment: Alignment.topLeft,
           child: BackButton(
             color: Colors.white,
           ),
-        ),
+        )
       ],
-    );
-  }
-
-  Material buildIconButton(VoidCallback onTap) {
-    return Material(
-      color: Color(0xFF05A382),
-      shape: CircleBorder(),
-      child: InkWell(
-        onTap: onTap,
-        customBorder: CircleBorder(),
-        child: Padding(
-          padding: const EdgeInsets.all(8.0),
-          child: Icon(
-            Icons.camera_alt_outlined,
-          ),
-        ),
-      ),
     );
   }
 
@@ -152,10 +143,8 @@ class WhatsappAppBarSliverHeader extends SliverPersistentHeaderDelegate {
 }
 
 void main(List<String> args) {
-  runApp(
-    MaterialApp(
-      debugShowCheckedModeBanner: false,
-      home: HomePage(),
-    ),
-  );
+  runApp(MaterialApp(
+    debugShowCheckedModeBanner: false,
+    home: HomePage(),
+  ));
 }
