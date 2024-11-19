@@ -1,12 +1,11 @@
 import 'package:collection/collection.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_art/src/circle_playground/coordinates_visualization.dart';
 
 import 'circle_playground/circle_division_v0.dart';
-import 'circle_playground/pi_roate_circle.dart';
-import 'circle_playground/pi_rotate_circle_v1.dart';
+import 'circle_playground/coordinates_visualization.dart';
 import 'circle_playground/pi_rotate_with_timer.dart';
 import 'shader_practice/color_opacity_with_shader.dart';
+import 'shader_practice/madelbrot_factal_shader_page.dart';
 
 class HomePage extends StatefulWidget {
   const HomePage({super.key});
@@ -23,6 +22,7 @@ class _HomePageState extends State<HomePage> {
     // "Pi being irrational V1": const PiCircleRotationV1(),
     "Pi being irrational VTimer": const PiCircleRotationWithTimer(),
     "simple shader": const FragmentPractice(),
+    "Mandelbrot shader": const MandelbrotFractalPage(),
   };
   @override
   Widget build(BuildContext context) {
